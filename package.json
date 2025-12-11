@@ -1,0 +1,20 @@
+{
+  "name": "weather-simulation",
+  "version": "1.0.0",
+  "description": "Weather simulation using p5.js and TypeScript",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "p5": "^1.9.4"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.7.6",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  }
+}
+
