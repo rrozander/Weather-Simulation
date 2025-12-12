@@ -1,9 +1,8 @@
 import p5 from 'p5';
-import { Cell, Grid } from './grid';
+import { Grid } from './grid';
 
-const windowWidth = 800;
-const windowHeight = 600;
-const frameRate = 60;
+const windowWidth = 1200;
+const windowHeight = 800;
 const cellSize = 10;
 
 let grid: Grid;
@@ -18,18 +17,25 @@ const sketch = (p: p5) => {
 
 function setup(p: p5) {
   p.createCanvas(windowWidth, windowHeight);
+
   grid = new Grid(windowWidth / cellSize, windowHeight / cellSize);
 
-  p.frameRate(frameRate);
-  console.log("Canvas created");
+  p.frameRate(getFrameRate());
+  addControlsListeners();
+  console.log("Canvas Setup Complete");
 }
 
 
 function draw(p: p5) {
+
+  const currentDiffusionRate = getDiffusionRate();
+  const currentFrameRate = getFrameRate();
   p.background("rgb(62, 199, 241)");
 
-  drawGrid(p, grid);
+  drawGrid(p, grid, currentDiffusionRate);
   drawCoords(p);
+
+  p.frameRate(currentFrameRate);
 }
 
 
@@ -43,15 +49,15 @@ function drawCoords (p: p5) {
 }
 
 
-function drawGrid (p: p5, grid: Grid) {
+function drawGrid (p: p5, grid: Grid, diffusionRate: number) {
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
 
       const cell = grid.getCell(x, y);
-      p.fill(cell.density * 255);
+      p.fill(cell.density * 255, 0, cell.density * 255);
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-      grid.diffuseCell(x, y);
+      grid.diffuseCell(x, y, diffusionRate);
     }
   }
 }
@@ -62,6 +68,30 @@ function addDensity (p: p5) {
   const cellY = Math.floor(p.mouseY / cellSize);
   const cell = grid.getCell(cellX, cellY);
   cell.density = Math.min(cell.density + 1, 1);
+}
+
+
+function getDiffusionRate(): number {
+  const slider = document.getElementById('diffusion-rate') as HTMLInputElement;
+
+  return parseFloat(slider.value);
+}
+
+function getFrameRate(): number {
+  const slider = document.getElementById('frame-rate') as HTMLInputElement;
+  return parseInt(slider.value);
+}
+
+function addControlsListeners() {
+  document.getElementById('diffusion-rate')?.addEventListener('input', (e) => {
+    const value = (e.target as HTMLInputElement).value;
+    document.getElementById('diffusion-value')!.textContent = value;
+  });
+
+  document.getElementById('frame-rate')?.addEventListener('input', (e) => {
+    const value = (e.target as HTMLInputElement).value;
+    document.getElementById('framerate-value')!.textContent = value;
+  });
 }
 
 

@@ -4,8 +4,6 @@ export interface Cell {
   yv: number; // Y velocity
 }
 
-const diffusionRate = 0.8;
-
 export class Grid {
   height: number;
   width: number;
@@ -29,7 +27,7 @@ export class Grid {
     return this.cells[x + (y * this.width)];
   }
 
-  diffuseCell(x: number, y: number) {
+  diffuseCell(x: number, y: number, diffusionRate: number) {
     const cell = this.getCell(x, y);
     const cellX1 = this.getCell(x + 1, y);
     const cellX2 = this.getCell(x - 1, y);
