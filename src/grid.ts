@@ -14,8 +14,8 @@ export class Grid {
     this.width = width;
     this.cells = Array.from({ length: height * width }, () => ({
       density: 0,
-      xv: 0,
-      yv: 0,
+      xv: 1,
+      yv: 1,
     }));
   }
 
@@ -37,5 +37,10 @@ export class Grid {
     const averageNeighboringDensity = (cellX1.density + cellX2.density + cellY1.density + cellY2.density) / 4;
 
     cell.density = cell.density * (1 - diffusionRate) + averageNeighboringDensity * diffusionRate;
+  }
+
+  advectCell(x: number, y: number, xv: number, yv: number) {
+    // TODO: Impletment function to update wind velocity.
+    return
   }
 }

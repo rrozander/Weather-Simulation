@@ -53,11 +53,21 @@ function drawGrid (p: p5, grid: Grid, diffusionRate: number) {
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
 
+      // Diffuse Cell
+      grid.diffuseCell(x, y, diffusionRate);
+
+      // Draw Cell
       const cell = grid.getCell(x, y);
+      p.noStroke();
       p.fill(cell.density * 255, 0, cell.density * 255);
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-      grid.diffuseCell(x, y, diffusionRate);
+      // Draw Velocity Vector
+      if (x % 5 === 1 && y % 5 === 1) {
+        p.stroke("rgb(7, 41, 155)");
+        p.line(x * cellSize, y * cellSize, (x + cell.xv) * cellSize, (y + cell.yv) * cellSize);
+      }
+      
     }
   }
 }
