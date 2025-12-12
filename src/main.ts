@@ -1,90 +1,68 @@
 import p5 from 'p5';
+import { Cell, Grid } from './grid';
+
+const windowWidth = 800;
+const windowHeight = 600;
+const frameRate = 10;
+const cellSize = 10;
+
+let grid: Grid;
 
 const sketch = (p: p5) => {
-  const particles: Particle[] = [];
-  const numParticles = 200;
+  p.setup = () => setup(p);
+  p.draw = () => draw(p);
+  p.mousePressed = () => mousePressed(p);
+};
 
-  class Particle {
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    size: number;
-    alpha: number;
 
-    constructor() {
-      this.x = p.random(p.width);
-      this.y = p.random(-100, p.height);
-      this.vx = p.random(-0.5, 0.5);
-      this.vy = p.random(1, 3);
-      this.size = p.random(2, 5);
-      this.alpha = p.random(100, 200);
+function setup(p: p5) {
+  p.createCanvas(windowWidth, windowHeight);
+  grid = new Grid(windowWidth / cellSize, windowHeight / cellSize);
+
+  p.frameRate(frameRate);
+  console.log("Canvas created");
+}
+
+
+function draw(p: p5) {
+  p.background("rgb(62, 199, 241)");
+
+  drawGrid(p, grid);
+  drawCoords(p);
+}
+
+
+function drawCoords (p: p5) {
+    //x and y text
+    p.fill("rgb(2, 118, 5)");
+    p.textSize(12)
+    if (p.mouseX > 0 && p.mouseX < p.width && p.mouseY > 0 && p.mouseY < p.height) {
+      p.text(`${p.mouseX}, ${p.mouseY}`, 20, 20);
     }
+}
 
-    update() {
-      this.x += this.vx;
-      this.y += this.vy;
 
-      // Add some wind effect
-      this.vx += p.random(-0.01, 0.01);
-      this.vx = p.constrain(this.vx, -1, 1);
+function drawGrid (p: p5, grid: Grid) {
+  for (let y = 0; y < grid.height; y++) {
+    for (let x = 0; x < grid.width; x++) {
 
-      // Reset particle when it goes off screen
-      if (this.y > p.height + 10) {
-        this.y = p.random(-50, -10);
-        this.x = p.random(p.width);
-      }
-      if (this.x < -10) this.x = p.width + 10;
-      if (this.x > p.width + 10) this.x = -10;
-    }
+      const cell = grid.getCell(x, y);
+      p.fill(cell.density * 255);
+      p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-    draw() {
-      p.noStroke();
-      p.fill(200, 220, 255, this.alpha);
-      p.ellipse(this.x, this.y, this.size);
+      //grid.diffuseCell(x, y);
     }
   }
+}
 
-  p.setup = () => {
-    const container = document.getElementById('canvas-container');
-    const canvas = p.createCanvas(800, 600);
-    if (container) {
-      canvas.parent(container);
-    }
 
-    // Initialize particles
-    for (let i = 0; i < numParticles; i++) {
-      particles.push(new Particle());
-    }
-  };
+function mousePressed (p: p5) {
+  const cellX = Math.floor(p.mouseX / cellSize);
+  const cellY = Math.floor(p.mouseY / cellSize);
+  const cell = grid.getCell(cellX, cellY);
+  cell.density = Math.min(cell.density + 0.1, 1);
+}
 
-  p.draw = () => {
-    // Create gradient background
-    const c1 = p.color(30, 40, 60);
-    const c2 = p.color(60, 80, 120);
-    
-    for (let y = 0; y < p.height; y++) {
-      const inter = p.map(y, 0, p.height, 0, 1);
-      const c = p.lerpColor(c1, c2, inter);
-      p.stroke(c);
-      p.line(0, y, p.width, y);
-    }
-
-    // Update and draw particles
-    for (const particle of particles) {
-      particle.update();
-      particle.draw();
-    }
-
-    // Display info
-    p.fill(255, 255, 255, 180);
-    p.noStroke();
-    p.textSize(14);
-    p.textFont('monospace');
-    p.text(`Particles: ${particles.length}`, 20, 30);
-    p.text(`FPS: ${Math.round(p.frameRate())}`, 20, 50);
-  };
-};
 
 new p5(sketch);
 
