@@ -4,6 +4,7 @@ export interface Cell {
   yv: number; // Y velocity
 }
 
+const diffusionRate = 0.8;
 
 export class Grid {
   height: number;
@@ -21,6 +22,10 @@ export class Grid {
   }
 
   getCell(x: number, y: number): Cell {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return { density: 0, xv: 0, yv: 0 }; // This is a "Wall" cell that does not diffuse or have velocity
+    }
+
     return this.cells[x + (y * this.width)];
   }
 
@@ -30,6 +35,9 @@ export class Grid {
     const cellX2 = this.getCell(x - 1, y);
     const cellY1 = this.getCell(x, y + 1);
     const cellY2 = this.getCell(x, y - 1);
-    cell.density 
+
+    const averageNeighboringDensity = (cellX1.density + cellX2.density + cellY1.density + cellY2.density) / 4;
+
+    cell.density = cell.density * (1 - diffusionRate) + averageNeighboringDensity * diffusionRate;
   }
 }

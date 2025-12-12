@@ -3,7 +3,7 @@ import { Cell, Grid } from './grid';
 
 const windowWidth = 800;
 const windowHeight = 600;
-const frameRate = 10;
+const frameRate = 60;
 const cellSize = 10;
 
 let grid: Grid;
@@ -11,7 +11,8 @@ let grid: Grid;
 const sketch = (p: p5) => {
   p.setup = () => setup(p);
   p.draw = () => draw(p);
-  p.mousePressed = () => mousePressed(p);
+  p.mousePressed = () => addDensity(p);
+  p.mouseDragged = () => addDensity(p);
 };
 
 
@@ -50,17 +51,17 @@ function drawGrid (p: p5, grid: Grid) {
       p.fill(cell.density * 255);
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-      //grid.diffuseCell(x, y);
+      grid.diffuseCell(x, y);
     }
   }
 }
 
 
-function mousePressed (p: p5) {
+function addDensity (p: p5) {
   const cellX = Math.floor(p.mouseX / cellSize);
   const cellY = Math.floor(p.mouseY / cellSize);
   const cell = grid.getCell(cellX, cellY);
-  cell.density = Math.min(cell.density + 0.1, 1);
+  cell.density = Math.min(cell.density + 1, 1);
 }
 
 
