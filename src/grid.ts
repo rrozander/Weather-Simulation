@@ -13,21 +13,20 @@ export class Grid {
     this.height = height;
     this.width = width;
 
-    const centerX = width / 2;
-    const centerY = height / 2;
+    // const centerX = width / 2;
+    // const centerY = height / 2;
 
-    this.cells = Array.from({ length: height * width }, (_, index) => {
-      const x = index % width;
-      const y = Math.floor(index / width);
-
+    this.cells = Array.from({ length: height * width }, () => {
       // Vector from center to this cell
-      const dx = x - centerX;
-      const dy = y - centerY;
-      const initxv = (dy) / 10;
-      const inityv = (dx) / 10;
+      // const x = index % width;
+      // const y = Math.floor(index / width);
+      // const dx = x - centerX;
+      // const dy = y - centerY;
+      // const initxv = (dy) / 10;
+      // const inityv = (dx) / 10;
 
-      // const initxv = 0.5;
-      // const inityv = -0.5;
+      const initxv = 0;
+      const inityv = 0;
       return {
         density: 0,
         xv: initxv,
@@ -84,6 +83,20 @@ export class Grid {
     currentCell.xv = newWind.xWind;
     currentCell.yv = newWind.yWind;
   }
+
+  applyPressureForceAtCell(x: number, y: number, timestep: number) {
+    const windStrength = 30;
+
+    const gradientX = this.getCell(x + 1, y).density - this.getCell(x - 1, y).density;
+    const gradientY = this.getCell(x, y + 1).density - this.getCell(x, y - 1).density;
+
+    // Wind flows FROM High TO Low.
+    // If gradX is positive (Right is denser), we want to push LEFT (negative).
+    // So we subtract the gradient.
+    const currentCell = this.getCell(x, y);
+    currentCell.xv -= gradientX * windStrength * timestep;
+    currentCell.yv -= gradientY * windStrength * timestep;
+}
 
   isInBounds(x: number, y: number): boolean {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;

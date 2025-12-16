@@ -42,13 +42,23 @@ function draw(p: p5) {
 
 
 function updateGrid(grid: Grid, diffusionRate: number, frameRate: number) {
-  const gridSnapshot = grid.cells.map(cell => ({...cell}));
   const timestep = 1 / frameRate;
 
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
+      // Apply Forces
+      grid.applyPressureForceAtCell(x, y, timestep);
+
       // Diffuse Cell
       grid.diffuseCell(x, y, diffusionRate);
+
+    }
+  }
+
+  const gridSnapshot = grid.cells.map(cell => ({...cell}));
+
+  for (let y = 0; y < grid.height; y++) {
+    for (let x = 0; x < grid.width; x++) {
 
       // Advect Cell
       grid.advectCell(x, y, timestep, gridSnapshot);
