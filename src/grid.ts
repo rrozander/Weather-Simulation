@@ -80,7 +80,7 @@ export class Grid {
 
         // current position - (velocity (m/s) * timestep (1/s) = distance (m)) => previous position
         const prevCell = this.getCellFromSnapshot(x, y, gridSnapshot);
-        const strength = 10;
+        const strength = 3;
         const prevXUnclamped = x - (timestep * prevCell.xv * strength); 
         const prevYUnclamped = y - (timestep * prevCell.yv * strength);
 

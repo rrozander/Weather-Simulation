@@ -147,8 +147,8 @@ function addVelocity (p: p5) {
   const vy = (dyPx / cellSize) / dt;
 
   // tuneables
-  const strength = 0.05;        // smaller than you think
-  const radiusCells = 4;        // how wide the influence spreads
+  const strength = 0.08;        // smaller than you think
+  const radiusCells = 6;        // how wide the influence spreads
   const maxVel = 50;            // clamp injected velocity magnitude (cells/sec)
 
   // clamp injected magnitude
