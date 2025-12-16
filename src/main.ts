@@ -32,12 +32,28 @@ function draw(p: p5) {
   const currentFrameRate = getFrameRate();
   p.background("rgb(62, 199, 241)");
 
-  drawGrid(p, grid, currentDiffusionRate);
+  updateGrid(grid, currentDiffusionRate, currentFrameRate);
+  drawGrid(p, grid);
   drawCoords(p);
 
   p.frameRate(currentFrameRate);
 }
 
+
+function updateGrid(grid: Grid, diffusionRate: number, frameRate: number) {
+  const gridSnapshot = grid.cells.map(cell => ({...cell}));
+  const timestep = 1 / frameRate;
+
+  for (let y = 0; y < grid.height; y++) {
+    for (let x = 0; x < grid.width; x++) {
+      // Diffuse Cell
+      grid.diffuseCell(x, y, diffusionRate);
+
+      // Advect Cell
+      grid.advectCell(x, y, timestep, gridSnapshot);
+    }
+  }
+}
 
 function drawCoords (p: p5) {
     //x and y text
@@ -49,13 +65,10 @@ function drawCoords (p: p5) {
 }
 
 
-function drawGrid (p: p5, grid: Grid, diffusionRate: number) {
+function drawGrid (p: p5, grid: Grid) {
+
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
-
-      // Diffuse Cell
-      grid.diffuseCell(x, y, diffusionRate);
-
       // Draw Cell
       const cell = grid.getCell(x, y);
       p.noStroke();
@@ -63,13 +76,44 @@ function drawGrid (p: p5, grid: Grid, diffusionRate: number) {
       p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
       // Draw Velocity Vector
-      if (x % 5 === 1 && y % 5 === 1) {
-        p.stroke("rgb(7, 41, 155)");
-        p.line(x * cellSize, y * cellSize, (x + cell.xv) * cellSize, (y + cell.yv) * cellSize);
-      }
-      
+      if (x % 5 === 2 && y % 5 === 2) {
+        const XPosition = x * cellSize;
+        const YPosition = y * cellSize;
+        const VelocityX = cell.xv * cellSize;
+        const VelocityY = cell.yv * cellSize;
+
+        if (cell.xv !== 0 || cell.yv !== 0) {
+          drawArrow(p, XPosition, YPosition, VelocityX, VelocityY, 'red');
+        }
+      }     
     }
   }
+}
+
+function drawArrow(
+  p: p5,
+  baseX: number,
+  baseY: number,
+  vectorX: number, // How much to move in the x direction
+  vectorY: number, // How much to move in the y direction
+  color: string
+) {
+  let baseVec = p.createVector(baseX, baseY);
+  let headVec = p.createVector(vectorX, vectorY);
+
+  p.push();
+  p.stroke(color);
+  p.strokeWeight(2);
+  p.fill(color);
+
+  p.translate(baseVec.x, baseVec.y);
+  p.line(0, 0, headVec.x, headVec.y);
+  p.rotate(headVec.heading());
+  let arrowSize = 3;
+  p.translate(headVec.mag() - arrowSize, 0);
+  p.triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+
+  p.pop();
 }
 
 
