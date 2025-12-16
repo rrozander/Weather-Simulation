@@ -15,7 +15,6 @@ export class Grid {
 
     const centerX = width / 2;
     const centerY = height / 2;
-    const maxRadius = Math.min(width, height) / 2;
 
     this.cells = Array.from({ length: height * width }, (_, index) => {
       const x = index % width;
@@ -24,14 +23,11 @@ export class Grid {
       // Vector from center to this cell
       const dx = x - centerX;
       const dy = y - centerY;
+      const initxv = (dy) / 10;
+      const inityv = (dx) / 10;
 
-
-      // const initxv = (-dy) / 10;
-      // const inityv = (dx) / 10;
-
-      const initxv = 0.5;
-      const inityv = -0.5;
-      //console.log(initxv, inityv);
+      // const initxv = 0.5;
+      // const inityv = -0.5;
       return {
         density: 0,
         xv: initxv,
@@ -69,13 +65,13 @@ export class Grid {
   }
 
   advectCell(x: number, y: number, timestep: number, gridSnapshot: Cell[]) {
-    const centerX = x + 0.5;
-    const centerY = y + 0.5;
+
+    // Maybe need to add 0.5 to x and y to get center of cell if there are issues.
 
     // current position - (velocity (m/s) * timestep (1/s) = distance (m)) => previous position
     const prevCell = this.getCellFromSnapshot(x, y, gridSnapshot);
-    const prevXUnclamped = centerX - (timestep * prevCell.xv); 
-    const prevYUnclamped = centerY - (timestep * prevCell.yv);
+    const prevXUnclamped = x - (timestep * prevCell.xv); 
+    const prevYUnclamped = y - (timestep * prevCell.yv);
 
     // Clamp position to be within the grid
     const prevPositionX = this.clamp(prevXUnclamped, 0.5, this.width - 0.5);

@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import { Grid } from './grid';
 
-const windowWidth = 1000;
+const windowWidth = 1200;
 const windowHeight = 1000;
 const cellSize = 10;
 
@@ -30,7 +30,7 @@ function draw(p: p5) {
 
   const currentDiffusionRate = getDiffusionRate();
   // TODO: Update, Changing for testing purposes
-  const currentFrameRate = 60; //getFrameRate();
+  const currentFrameRate = getFrameRate();
   p.background("rgb(62, 199, 241)");
 
   updateGrid(grid, currentDiffusionRate, currentFrameRate);
@@ -72,10 +72,6 @@ function drawGrid (p: p5, grid: Grid) {
     for (let x = 0; x < grid.width; x++) {
       // Draw Cell
       const cell = grid.getCell(x, y);
-
-      // if (x === 0 && y === 0) {
-      //   console.log(cell.density, cell.xv, cell.yv);
-      // }
 
       p.noStroke();
       p.fill(cell.density * 255, 0, cell.density * 255);
