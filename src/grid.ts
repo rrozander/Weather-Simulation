@@ -12,17 +12,30 @@ export class Grid {
   constructor(width: number, height: number) {
     this.height = height;
     this.width = width;
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxRadius = Math.min(width, height) / 2;
+
     this.cells = Array.from({ length: height * width }, (_, index) => {
       const x = index % width;
       const y = Math.floor(index / width);
+
+      // Vector from center to this cell
+      const dx = x - centerX;
+      const dy = y - centerY;
+
+
+      // const initxv = (-dy) / 10;
+      // const inityv = (dx) / 10;
+
+      const initxv = 0.5;
+      const inityv = -0.5;
+      //console.log(initxv, inityv);
       return {
         density: 0,
-        // xv: (Math.random() * 5) * (Math.random() < 0.5 ? -1 : 1),
-        // yv: (Math.random() * 5) * (Math.random() < 0.5 ? -1 : 1)
-        // xv: (x + y) % 2 === 0 ? 5 : -5,
-        // yv: 0.0
-        xv: -0.7,
-        yv: 1
+        xv: initxv,
+        yv: - inityv
     }});
   }
 
@@ -65,19 +78,10 @@ export class Grid {
     const prevYUnclamped = centerY - (timestep * prevCell.yv);
 
     // Clamp position to be within the grid
-    const prevPositionX = this.clamp(prevXUnclamped, 0, this.width - 1);
-    const prevPositionY = this.clamp(prevYUnclamped, 0, this.height - 1);
-
-
-    //console.log("Prev Position: ", prevPositionX, prevPositionY);
-    // Get wind at previous position
-    //const prevCell = this.getCell(Math.floor(prevPositionX), Math.floor(prevPositionY));
-    // const prevWindX = prevCell.xv;
-    // const prevWindY = prevCell.yv;
+    const prevPositionX = this.clamp(prevXUnclamped, 0.5, this.width - 0.5);
+    const prevPositionY = this.clamp(prevYUnclamped, 0.5, this.height - 0.5);
 
     // Bilinear interpolation
-    // TODO: Might need to fix this if it is not working.
-
     const newWind = this.interpolateWind(prevPositionX, prevPositionY, gridSnapshot);
 
     const currentCell = this.getCell(x, y);
@@ -103,9 +107,9 @@ export class Grid {
     gridSnapshot: Cell[]
   ): {xWind: number, yWind: number} {
     const leftIdxX = Math.floor(prevPositionX);
-    const rightIdxX = leftIdxX + 1;
+    const rightIdxX = this.clamp(leftIdxX + 1, 0, this.width - 1);
     const topIdxY = Math.floor(prevPositionY);
-    const bottomIdxY = topIdxY + 1;
+    const bottomIdxY = this.clamp(topIdxY + 1, 0, this.height - 1);
 
     const xWeight = (prevPositionX) - leftIdxX;
     const yWeight = (prevPositionY) - topIdxY;

@@ -1,8 +1,8 @@
 import p5 from 'p5';
 import { Grid } from './grid';
 
-const windowWidth = 1200;
-const windowHeight = 800;
+const windowWidth = 1000;
+const windowHeight = 1000;
 const cellSize = 10;
 
 let grid: Grid;
@@ -29,7 +29,8 @@ function setup(p: p5) {
 function draw(p: p5) {
 
   const currentDiffusionRate = getDiffusionRate();
-  const currentFrameRate = getFrameRate();
+  // TODO: Update, Changing for testing purposes
+  const currentFrameRate = 60; //getFrameRate();
   p.background("rgb(62, 199, 241)");
 
   updateGrid(grid, currentDiffusionRate, currentFrameRate);
@@ -71,19 +72,32 @@ function drawGrid (p: p5, grid: Grid) {
     for (let x = 0; x < grid.width; x++) {
       // Draw Cell
       const cell = grid.getCell(x, y);
+
+      // if (x === 0 && y === 0) {
+      //   console.log(cell.density, cell.xv, cell.yv);
+      // }
+
       p.noStroke();
       p.fill(cell.density * 255, 0, cell.density * 255);
-      p.rect(x * cellSize, y * cellSize, cellSize, cellSize);
+      
+      const xPos = x * cellSize;
+      const yPos = y * cellSize;
+      p.rect(xPos, yPos, cellSize, cellSize);
+    }
+  }
 
+  for (let y = 0; y < grid.height; y++) {
+    for (let x = 0; x < grid.width; x++) {
       // Draw Velocity Vector
       if (x % 5 === 2 && y % 5 === 2) {
-        const XPosition = x * cellSize;
-        const YPosition = y * cellSize;
-        const VelocityX = cell.xv * cellSize;
-        const VelocityY = cell.yv * cellSize;
+        const cell = grid.getCell(x, y);
+        const xPosition = x * cellSize;
+        const yPosition = y * cellSize;
+        const velocityX = cell.xv * cellSize;
+        const velocityY = cell.yv * cellSize;
 
-        if (cell.xv !== 0 || cell.yv !== 0) {
-          drawArrow(p, XPosition, YPosition, VelocityX, VelocityY, 'red');
+        if (cell.xv > 0.0001 || cell.yv > 0.0001 || cell.xv < -0.0001 || cell.yv < -0.0001) {
+          drawArrow(p, xPosition, yPosition, velocityX, velocityY, 'red');
         }
       }     
     }
