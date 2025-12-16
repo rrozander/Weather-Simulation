@@ -1,17 +1,20 @@
 import p5 from 'p5';
 import { Grid } from './grid';
 
-const windowWidth = 1200;
-const windowHeight = 1000;
-const cellSize = 10;
+const windowWidth = 2048;
+const windowHeight = 1024;
+const cellSize = 8;
 
 let grid: Grid;
 
 const sketch = (p: p5) => {
   p.setup = () => setup(p);
   p.draw = () => draw(p);
-  p.mousePressed = () => addDensity(p);
-  p.mouseDragged = () => addDensity(p);
+  p.mousePressed = () => addDensity(p, 1);
+  p.mouseDragged = () => {
+    addDensity(p, 1);
+    addVelocity(p);
+  };
 };
 
 
@@ -43,27 +46,15 @@ function draw(p: p5) {
 
 function updateGrid(grid: Grid, diffusionRate: number, frameRate: number) {
   const timestep = 1 / frameRate;
+  let gridSnapshot = grid.cells.map(cell => ({...cell}));
 
-  for (let y = 0; y < grid.height; y++) {
-    for (let x = 0; x < grid.width; x++) {
-      // Apply Forces
-      grid.applyPressureForceAtCell(x, y, timestep);
+  grid.advect(timestep, gridSnapshot, 'velocity');
+  grid.project();
 
-      // Diffuse Cell
-      grid.diffuseCell(x, y, diffusionRate);
+  gridSnapshot = grid.cells.map(cell => ({...cell}));
+  grid.advect(timestep, gridSnapshot, 'density');
 
-    }
-  }
-
-  const gridSnapshot = grid.cells.map(cell => ({...cell}));
-
-  for (let y = 0; y < grid.height; y++) {
-    for (let x = 0; x < grid.width; x++) {
-
-      // Advect Cell
-      grid.advectCell(x, y, timestep, gridSnapshot);
-    }
-  }
+  grid.diffuse(diffusionRate);
 }
 
 function drawCoords (p: p5) {
@@ -95,7 +86,7 @@ function drawGrid (p: p5, grid: Grid) {
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
       // Draw Velocity Vector
-      if (x % 5 === 2 && y % 5 === 2) {
+      if (x % 8 === 1 && y % 8 === 1) {
         const cell = grid.getCell(x, y);
         const xPosition = x * cellSize;
         const yPosition = y * cellSize;
@@ -103,7 +94,7 @@ function drawGrid (p: p5, grid: Grid) {
         const velocityY = cell.yv * cellSize;
 
         if (cell.xv > 0.0001 || cell.yv > 0.0001 || cell.xv < -0.0001 || cell.yv < -0.0001) {
-          drawArrow(p, xPosition, yPosition, velocityX, velocityY, 'red');
+          //drawArrow(p, xPosition, yPosition, velocityX, velocityY, 'red');
         }
       }     
     }
@@ -137,11 +128,53 @@ function drawArrow(
 }
 
 
-function addDensity (p: p5) {
+function addDensity (p: p5, amount: number) {
   const cellX = Math.floor(p.mouseX / cellSize);
   const cellY = Math.floor(p.mouseY / cellSize);
   const cell = grid.getCell(cellX, cellY);
-  cell.density = Math.min(cell.density + 1, 1);
+  cell.density = Math.min(cell.density + amount, 1);
+}
+
+function addVelocity (p: p5) {
+  const dxPx = p.mouseX - p.pmouseX;
+  const dyPx = p.mouseY - p.pmouseY;
+
+  // convert to cells/sec (approx); use actual timestep if you have it
+  const fps = getFrameRate();
+  const dt = 1 / fps;
+
+  const vx = (dxPx / cellSize) / dt;
+  const vy = (dyPx / cellSize) / dt;
+
+  // tuneables
+  const strength = 0.05;        // smaller than you think
+  const radiusCells = 4;        // how wide the influence spreads
+  const maxVel = 50;            // clamp injected velocity magnitude (cells/sec)
+
+  // clamp injected magnitude
+  const mag = Math.hypot(vx, vy);
+  const s = mag > maxVel ? (maxVel / mag) : 1;
+  const ivx = vx * s;
+  const ivy = vy * s;
+
+  const cx = Math.floor(p.mouseX / cellSize);
+  const cy = Math.floor(p.mouseY / cellSize);
+
+  // “splat” into neighborhood with Gaussian falloff
+  const r = radiusCells;
+  const sigma2 = (r * r) / 2;
+
+  for (let y = cy - r; y <= cy + r; y++) {
+    for (let x = cx - r; x <= cx + r; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      const w = Math.exp(-(dx * dx + dy * dy) / sigma2);
+
+      const cell = grid.getCell(x, y);
+      cell.xv += ivx * strength * w;
+      cell.yv += ivy * strength * w;
+    }
+  }
 }
 
 
