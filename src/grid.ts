@@ -73,16 +73,14 @@ export class Grid {
     }
   }
 
-  advect(timestep: number, gridSnapshot: Cell[], type: 'velocity' | 'density') {
+  advect(timestep: number, gridSnapshot: Cell[], advectionStrength: number, type: 'velocity' | 'density') {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        // Maybe need to add 0.5 to x and y to get center of cell if there are  issues.
 
         // current position - (velocity (m/s) * timestep (1/s) = distance (m)) => previous position
         const prevCell = this.getCellFromSnapshot(x, y, gridSnapshot);
-        const strength = 3;
-        const prevXUnclamped = x - (timestep * prevCell.xv * strength); 
-        const prevYUnclamped = y - (timestep * prevCell.yv * strength);
+        const prevXUnclamped = x - (timestep * prevCell.xv * advectionStrength); 
+        const prevYUnclamped = y - (timestep * prevCell.yv * advectionStrength);
 
         // Clamp position to be within the grid
         const prevPositionX = this.clamp(prevXUnclamped, 0.5, this.width - 0.5);

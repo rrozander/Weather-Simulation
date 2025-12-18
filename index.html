@@ -82,15 +82,20 @@
         <h1>Weather Simulation</h1>
         <div id="controls">
           <div class="control-group">
-            <label for="diffusion-rate">Diffusion Rate</label>
-            <input type="range" id="diffusion-rate" min="0" max="1" step="0.01" value="0.5">
-            <span id="diffusion-value">0.5</span>
+            <label for="advection-strength">Advection Strength</label>
+            <input type="range" id="advection-strength" min="0" max="20" step="0.1" value="10">
+            <span id="advection-value">10</span>
           </div>
           
           <div class="control-group">
-            <label for="frame-rate">Frame Rate</label>
-            <input type="range" id="frame-rate" min="1" max="60" value="60">
-            <span id="framerate-value">60</span>
+            <label for="brush-radius">Brush Radius</label>
+            <input type="range" id="brush-radius" min="1" max="10" step="1" value="3">
+            <span id="brush-radius-value">3</span>
+          </div>
+
+          <div class="control-group">
+            <label for="visualize-vectors">Visualize Vectors</label>
+            <input type="checkbox" id="visualize-vectors">
           </div>
         </div>
       </div>
