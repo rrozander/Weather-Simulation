@@ -1,6 +1,6 @@
 # Weather Simulation
 
-A weather simulation built with TypeScript and p5.js.
+Weather Simulation that is currently just a 2D fluid simulator with plans to expand.
 
 ## Getting Started
 
@@ -33,26 +33,16 @@ Create a production build:
 npm run build
 ```
 
-### Preview Production Build
-
-```bash
-npm run preview
-```
-
 ## Tech Stack
 
 - **TypeScript** - Type-safe JavaScript
 - **p5.js** - Creative coding library for graphics and animation
 - **Vite** - Fast build tool and dev server
 
-## Project Structure
+## Improvements
 
-```
-Weather-Simulation/
-├── src/
-│   └── main.ts        # Main p5.js sketch
-├── index.html         # Entry HTML file
-├── package.json       # Dependencies and scripts
-├── tsconfig.json      # TypeScript configuration
-└── README.md          # This file
-```
+- Add Gravity + Convection currents
+- Improve runtime and port backend to C++ for better performance
+- Update to 2.5D
+- Include clouds, ground water, precipitation, etc.
+
